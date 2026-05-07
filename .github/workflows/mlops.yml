@@ -49,26 +49,23 @@ jobs:
         run: pip install -r requirements.txt dvc-s3
 
 
-      - name: Authenticate to AWS
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+
+      - name: AWS Sanity Check
         run: |
-          mkdir -p ~/.aws
-          echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-          echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
-          echo "AWS_DEFAULT_REGION=ap-southeast-2" >> $GITHUB_ENV
+          aws sts get-caller-identity
+          aws s3 ls s3://ai-app-123/
 
 
 
 
       - name: Pull data with DVC
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ap-southeast-2
         run: dvc pull data/train_phase1.csv data/eval.csv
-
 
       - name: Train model
         run: python src/train.py
