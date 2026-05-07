@@ -2,7 +2,8 @@ name: MLOps Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [master]
+
     paths:
       - 'data/**.dvc'
       - 'src/**.py'
@@ -23,7 +24,8 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt dvc-s3
+
 
       - name: Run tests
         run: pytest tests/ -v
@@ -44,7 +46,8 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt dvc-s3
+
 
       - name: Authenticate to AWS
         run: |
